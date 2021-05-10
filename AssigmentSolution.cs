@@ -52,15 +52,24 @@ namespace _2DWVSBPP_with_Visualizer
                 //variables to set the number bin type K is used
                 IIntVar[] z = new IIntVar[inst.m];
 
-                //decision variables to assign items (i) to bin types (k)
-                IIntVar[][] x = new IIntVar[inst.n][];
+                //decision variables to assign items (i) x[i][j][k]
+                //index i indexes items
+                //index j indexes bins
+                //index k indexes bin types
+                IIntVar[][][] x = new IIntVar[inst.n][][];
 
                 //init the var declared above in the cplex model instance
                 for(int k = 0; k < inst.m; k++) z[k] = cplex_bp.IntVar(0, inst.n, $"z[{k}]");
                 
                 for(int i = 0; i < inst.n; i++)
                 {
-                    for(int k = 0; k < inst.m; k++) x[i][k] = cplex_bp.BoolVar($"x[{i}][{k}]");
+                    x[i] = new IIntVar[inst.n][];
+                    for(int j = 0; j < inst.n; j++)
+                    {
+                        x[i][j] = new IIntVar[inst.m];
+
+                        for(int k = 0; k < inst.m; k++) x[i][j][k] = cplex_bp.BoolVar($"x[{i}][{j}][{k}]");
+                    }
                 }
 
                 //add objective
@@ -70,12 +79,16 @@ namespace _2DWVSBPP_with_Visualizer
 
                 cplex_bp.AddMinimize(obj);
 
-                /*Constraint #1: ensure that each item is assigned only once and to only one bin type*/ 
+                /*Constraint #1: ensure that each item is assigned only once*/ 
                 for(int i = 0; i < inst.n; i++)
                 {
                     constraint = cplex_bp.LinearIntExpr();
 
-                    for (int k = 0; k < inst.m; k++) constraint.AddTerm(1, x[i][k]);
+                    for (int j = 0; j < inst.n; j++)
+                    {
+                        for (int k = 0; k < inst.m; k++) constraint.AddTerm(1, x[i][j][k]);
+                    }
+
 
                     cplex_bp.AddEq(constraint, 1);
                 }
@@ -84,17 +97,23 @@ namespace _2DWVSBPP_with_Visualizer
                 for(int k = 0; k < inst.m; k++)
                 {
                     constraint = cplex_bp.LinearIntExpr();
+                    ILinearIntExpr RHS  = cplex_bp.LinearIntExpr();
 
-                    for (int i = 0; i < inst.n; i++) constraint.AddTerm((int)inst.items[i].area, x[i][k]);
+                    for(int j = 0; j < inst.n; j++)
+                    {
+                        for (int i = 0; i < inst.n; i++) constraint.AddTerm((int)inst.items[i].area, x[i][j][k]);
+                    }
 
-                    cplex_bp.AddLe(constraint, inst.types[k].cost);
+                    RHS.AddTerm((int)inst.types[k].cost, z[k]);
+
+                    cplex_bp.AddLe(constraint, RHS);
                 }
 
                 /*Constraint #3: DFF constraints*/
-                for (int k = 0; k < inst.m; k++)
-                {
-                    List<DFFRow> constraints = FeasibilityConstraint.Generate(inst.items, inst.types[k], 0.01, 0.49, 0.05);
-                }
+                //for (int k = 0; k < inst.m; k++)
+                //{
+                //    List<DFFRow> constraints = FeasibilityConstraint.Generate(inst.items, inst.types[k], 0.01, 0.49, 0.05);
+                //}
 
 
             }
