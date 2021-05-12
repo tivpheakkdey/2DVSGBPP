@@ -97,16 +97,15 @@ namespace _2DWVSBPP_with_Visualizer
                 for(int k = 0; k < inst.m; k++)
                 {
                     constraint = cplex_bp.LinearIntExpr();
-                    ILinearIntExpr RHS  = cplex_bp.LinearIntExpr();
 
                     for(int j = 0; j < inst.n; j++)
                     {
                         for (int i = 0; i < inst.n; i++) constraint.AddTerm((int)inst.items[i].area, x[i][j][k]);
                     }
 
-                    RHS.AddTerm((int)inst.types[k].cost, z[k]);
+                    constraint.AddTerm(-(int)inst.types[k].cost, z[k]);
 
-                    cplex_bp.AddLe(constraint, RHS);
+                    cplex_bp.AddLe(constraint, 0);
                 }
 
                 /*Constraint #3: DFF constraints*/
@@ -130,7 +129,11 @@ namespace _2DWVSBPP_with_Visualizer
                             //Add any item assigned to this bin of this type
                             for (int i = 0; i < inst.n; i++)
                             {
-                                if ((int)Math.Round(cplex_bp.GetValue(x[i][j][k])) == 1) tempbin.AddItem(inst.items[i], 0, 0);
+                                if ((int)Math.Round(cplex_bp.GetValue(x[i][j][k])) == 1)
+                                {
+                                    tempbin.AddItem(inst.items[i], 0, 0);
+                                    Console.WriteLine(string.Format("x[{0}][{1}][{2}]", i,j,k));
+                                }
                             }
 
                             /*If there's item assigned to the bin of this type add it to the solution
@@ -140,10 +143,19 @@ namespace _2DWVSBPP_with_Visualizer
                     }
                 }
 
-                //Print the current solution
-                for (int i = 0; i < solution.Count; i++) Console.WriteLine(solution[i].ToString());
-                    
+                for(int k = 0; k < inst.m; k++)
+                {
+                    Console.WriteLine(cplex_bp.GetValue(z[k]));
+                }
 
+                //cplex_bp.ExportModel("model.lp");
+
+                //Print the current solution
+                //Console.WriteLine(cplex_bp.GetObjValue());
+                //Console.WriteLine(solution.Count);
+                for (int i = 0; i < solution.Count; i++) Console.WriteLine(solution[i].ToString());
+
+                Console.ReadLine();
 
             }
             catch (ILOG.Concert.Exception exc)
