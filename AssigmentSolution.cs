@@ -15,7 +15,7 @@ namespace _2DWVSBPP_with_Visualizer
         private Instance inst;
         private Cplex cplex_bp;
 
-        public List<Bin> bins { get; private set; }
+        public List<Bin> solution { get; private set; }
 
         public AssigmentSolution(Instance instance)
         {
@@ -114,6 +114,35 @@ namespace _2DWVSBPP_with_Visualizer
                 //{
                 //    List<DFFRow> constraints = FeasibilityConstraint.Generate(inst.items, inst.types[k], 0.01, 0.49, 0.05);
                 //}
+
+
+                //Solving MIP
+                if (cplex_bp.Solve())
+                {
+                    solution = new List<Bin>();
+                    for (int k = 0; k < inst.m; k++)
+                    {
+                        for (int j = 0; j < inst.n; j++)
+                        {
+                            //Create a bin for possible solution
+                            Bin tempbin = new Bin(inst.types[k]);
+
+                            //Add any item assigned to this bin of this type
+                            for (int i = 0; i < inst.n; i++)
+                            {
+                                if ((int)Math.Round(cplex_bp.GetValue(x[i][j][k])) == 1) tempbin.AddItem(inst.items[i], 0, 0);
+                            }
+
+                            /*If there's item assigned to the bin of this type add it to the solution
+                            else skip adding it*/
+                            if (tempbin.items.Count != 0) solution.Add(tempbin);
+                        }
+                    }
+                }
+
+                //Print the current solution
+                for (int i = 0; i < solution.Count; i++) Console.WriteLine(solution[i].ToString());
+                    
 
 
             }
