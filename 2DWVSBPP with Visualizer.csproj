@@ -70,6 +70,7 @@
     <Compile Include="AssigmentSolution.cs" />
     <Compile Include="DFF\DFF.cs" />
     <Compile Include="DFF\DFFRow.cs" />
+    <Compile Include="IncumbentCallback.cs" />
     <Compile Include="IterativeSolution.cs" />
     <Compile Include="IterativeSoutinMaxSum.cs" />
     <Compile Include="Problem\Bin.cs" />
