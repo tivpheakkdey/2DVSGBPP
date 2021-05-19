@@ -7,6 +7,7 @@ using _2DWVSBPP_with_Visualizer.Problem;
 using _2DWVSBPP_with_Visualizer.DFF;
 using ILOG.Concert;
 using ILOG.CPLEX;
+using static ILOG.CPLEX.Cplex.Callback;
 
 namespace _2DWVSBPP_with_Visualizer
 {
@@ -124,6 +125,12 @@ namespace _2DWVSBPP_with_Visualizer
 
 
                 //Solving MIP
+                IncumbentCallback cb = new IncumbentCallback(double.MaxValue);
+                long wherefrom = 0;
+                wherefrom |= Context.Id.Candidate;
+                cplex_bp.Use(cb, wherefrom);
+
+
                 if (cplex_bp.Solve())
                 {
                     solution = new List<Bin>();
@@ -150,13 +157,6 @@ namespace _2DWVSBPP_with_Visualizer
                         }
                     }
                 }
-
-                //for(int k = 0; k < inst.m; k++)
-                //{
-                //    Console.WriteLine(cplex_bp.GetValue(z[k]));
-                //}
-
-                //cplex_bp.ExportModel("model.lp");
 
                 //Print the current solution
                 Console.WriteLine(cplex_bp.GetObjValue());

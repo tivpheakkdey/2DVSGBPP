@@ -11,7 +11,7 @@ using static ILOG.CPLEX.Cplex.Callback;
 
 namespace _2DWVSBPP_with_Visualizer
 {
-    class IncumbentCallback: Cplex.Callback.Function
+    class IncumbentCallback : Cplex.Callback.Function
     {
         private double obj;
 
@@ -19,7 +19,7 @@ namespace _2DWVSBPP_with_Visualizer
         {
             this.obj = obj;
         }
-        public void Invoke(Context context) 
+        public void Invoke(Context context)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace _2DWVSBPP_with_Visualizer
             }
         }
 
-        private void solveIncumbent (Context context)
+        private void solveIncumbent(Context context)
         {
             try
             {
@@ -39,9 +39,10 @@ namespace _2DWVSBPP_with_Visualizer
                 Cplex model = context.GetCplex();
 
                 //if it's candidate is better that current best obj value
-                if(context.GetCandidateObjective() < obj)
+                if (context.GetCandidateObjective() < obj)
                 {
                     //TODO: Check Feasibility
+                    Console.WriteLine("callback working");
                 }
             }
             catch (ILOG.Concert.Exception exc)
