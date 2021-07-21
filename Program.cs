@@ -56,8 +56,24 @@ namespace _2DWVSBPP_with_Visualizer
             //time_limit = Int32.Parse(args[1]);
 
             //Create a model with the class CplexBP by passing it an instance
-            AssigmentSolution model = new AssigmentSolution(instance);
-            model.Solve();
+            //AssigmentSolution model = new AssigmentSolution(instance);
+            //model.Solve();
+
+            List<Item> items = new List<Item>();
+
+            items.Add(new Item(1, 2, 2));
+            items.Add(new Item(2, 1, 2));
+            items.Add(new Item(3, 3, 2));
+            items.Add(new Item(4, 4, 2));
+
+            Bin bin = new Bin(new BinType(10, 10));
+
+            FeasibilityCheck.Packing(items, bin);
+
+            Console.ReadLine();
+
+
+
 
         }
     }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ILOG.Concert;
 using ILOG.CPLEX;
 using _2DWVSBPP_with_Visualizer.Problem;
-using _2DWVSBPP_with_Visualizer.DFF;
 using static ILOG.CPLEX.Cplex.Callback;
 
 namespace _2DWVSBPP_with_Visualizer
