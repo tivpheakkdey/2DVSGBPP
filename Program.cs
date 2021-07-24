@@ -59,18 +59,18 @@ namespace _2DWVSBPP_with_Visualizer
             //AssigmentSolution model = new AssigmentSolution(instance);
             //model.Solve();
 
-            List<Item> items = new List<Item>();
+            //List<Item> items = new List<Item>();
 
-            items.Add(new Item(1, 2, 2));
-            items.Add(new Item(2, 1, 2));
-            items.Add(new Item(3, 3, 2));
-            items.Add(new Item(4, 4, 2));
+            //items.Add(new Item(1, 2, 2));
+            //items.Add(new Item(2, 1, 2));
+            //items.Add(new Item(3, 3, 2));
+            //items.Add(new Item(4, 4, 2));
 
-            Bin bin = new Bin(new BinType(10, 10));
+            //Bin bin = new Bin(new BinType(10, 10));
 
-            FeasibilityCheck.Packing(items, bin);
+            //FeasibilityCheck.Packing(items, bin);
 
-            Console.ReadLine();
+            //Console.ReadLine();
 
 
 
