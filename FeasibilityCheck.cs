@@ -42,7 +42,7 @@ namespace _2DWVSBPP_with_Visualizer
                         Item packedItem = assignment[i];
                         packedItems.Add(packedItem);
                         assignment.RemoveAt(i);
-                        int itemCount = packedItems.Count;
+                        int packedCounter = packedItems.Count();
 
                         Rectangle topVert = new Rectangle(binSize.height - packedItem.height, packedItem.width);
                         Rectangle rightVert = new Rectangle(binSize.height, binSize.width - packedItem.width);
@@ -54,8 +54,13 @@ namespace _2DWVSBPP_with_Visualizer
                             if (Packing(ref assignment, ref packedItems, rightVert) || Packing(ref assignment, ref packedItems, topVert)) return true;
                             else
                             {
+                                rollBack(ref assignment, ref packedItems, packedItems.Count - packedCounter);
                                 if (Rectangle.ComparebyArea(topHori, rightHori) > 0) return Packing(ref assignment, ref packedItems, rightHori) || Packing(ref assignment, ref packedItems, topHori);
-                                else return Packing(ref assignment, ref packedItems, topHori) || Packing(ref assignment, ref packedItems, rightHori);
+                                else
+                                {
+                                    rollBack(ref assignment, ref packedItems, packedItems.Count - packedCounter);
+                                    return Packing(ref assignment, ref packedItems, topHori) || Packing(ref assignment, ref packedItems, rightHori);
+                                }
                             }
                         }
                         else
@@ -63,8 +68,13 @@ namespace _2DWVSBPP_with_Visualizer
                             if (Packing(ref assignment, ref packedItems, topVert) || Packing(ref assignment, ref packedItems, rightVert)) return true;
                             else
                             {
+                                rollBack(ref assignment, ref packedItems, packedItems.Count - packedCounter);
                                 if (Rectangle.ComparebyArea(topHori, rightHori) > 0) return Packing(ref assignment, ref packedItems, rightHori) || Packing(ref assignment, ref packedItems, topHori);
-                                else return Packing(ref assignment, ref packedItems, topHori) || Packing(ref assignment, ref packedItems, rightHori);
+                                else
+                                {
+                                    rollBack(ref assignment, ref packedItems, packedItems.Count - packedCounter);
+                                    return Packing(ref assignment, ref packedItems, topHori) || Packing(ref assignment, ref packedItems, rightHori);
+                                }
                             }
                         }
                     }
@@ -72,6 +82,15 @@ namespace _2DWVSBPP_with_Visualizer
 
                 return false;
             }
+        }
+        static private void rollBack(ref List<Item> a, ref List<Item> b, int times)
+        {
+            for(int i = 0; i < times; i++)
+            {
+                a.Add(b[b.Count - 1]);
+                b.RemoveAt(b.Count - 1);
+            }
+            a.Sort(Item.CompareItemByHeight);
         }
     }
 }
