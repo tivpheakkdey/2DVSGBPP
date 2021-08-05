@@ -71,32 +71,6 @@ namespace _2DWVSBPP_with_Visualizer
             return false;
         }
 
-        //private List<int> NormalPattern(List<Item> items, int width)
-        //{
-        //    List<int> result = new List<int>();
-        //    int[] T = new int[width];
-        //    Array.Clear(T, 0, T.Length);
-
-        //    T[0] = 1;
-
-        //    foreach(Item item in items)
-        //    {
-        //        for(int i = width - (int)item.width; i >= 0; i--)
-        //        {
-        //            if (T[i] == 1) T[i + (int)item.width] = 1;
-        //        }
-        //    }
-
-        //    for(int i = width; i <= 0; i--)
-        //    {
-        //        if (T[i] == 1) result.Add(i);
-        //    }
-
-        //    return result;
-
-
-        //}
-
         public double Solve(List<Item> _items, double UB, int[] encoding, out double LB, out List<Item> unpacked)
         {
             LB = -1; unpacked = null;

@@ -62,5 +62,35 @@ namespace _2DWVSBPP_with_Visualizer.Problem
                 ratio = (ratio * ratios.Count + value) / (ratios.Count + 1);
             }
         }
+
+        public static int CompareItemByHeight(Item a, Item b)
+        {
+            if (a == null)
+            {
+                if (b == null) return 0;
+                else return 1;
+            }
+            else
+            {
+                int result = b.height.CompareTo(a.height);
+                if (result != 0) return result;
+                else return b.width.CompareTo(a.width);
+            }
+        }
+
+        public static int CompareItemByWidth(Item a, Item b)
+        {
+            if (a == null)
+            {
+                if (b == null) return 0;
+                else return 1;
+            }
+            else
+            {
+                int result = b.width.CompareTo(a.width);
+                if (result != 0) return result;
+                else return b.height.CompareTo(a.height);
+            }
+        }
     }
 }

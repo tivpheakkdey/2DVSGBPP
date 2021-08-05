@@ -16,5 +16,21 @@ namespace _2DWVSBPP_with_Visualizer.Problem
             this.height = height;
             this.width = width;
         }
+
+        public static int ComparebyArea(Rectangle a, Rectangle b)
+        {
+            if (a == null)
+            {
+                if (b == null) return 0;
+                else return -1;
+            }
+            else
+            {
+                double aArea = a.height * a.width;
+                double bArea = b.height * b.width;
+
+                return aArea.CompareTo(bArea);
+            }
+        }
     }
 }
