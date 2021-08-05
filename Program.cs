@@ -72,7 +72,21 @@ namespace _2DWVSBPP_with_Visualizer
 
             //Console.ReadLine();
 
+            List<Item> items = new List<Item>();
+            int[] width = { 5, 10, 12, 15 };
+            for(int i = 0; i < width.Length; i++)
+            {
+                items.Add(new Item(i,0, width[i]));
+            }
 
+            List<int> result = FeasibilityCheck.NormalPattern(items, 27, false);
+
+            for(int i = 0; i < result.Count; i++)
+            {
+                Console.WriteLine(result[i]);
+            }
+
+            Console.ReadLine();
 
 
         }

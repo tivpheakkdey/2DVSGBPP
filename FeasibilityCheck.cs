@@ -93,5 +93,44 @@ namespace _2DWVSBPP_with_Visualizer
             }
             a.Sort(Item.CompareItemByHeight);
         }
+
+
+        static public List<int> NormalPattern(List<Item> items, int side, bool heightWise)
+        {
+            List<int> result = new List<int>();
+            int[] T = new int[side + 1];
+            Array.Clear(T, 0, T.Length);
+            T[0] = 1;
+
+            List<int> itemLength = new List<int>();
+            if (heightWise)
+            {
+                foreach(Item item in items) itemLength.Add((int)item.height);
+            }
+            else
+            {
+                foreach (Item item in items) itemLength.Add((int)item.width);
+            }
+
+            int threshold = side - itemLength.Min();
+
+            foreach (int length in itemLength)
+            {
+                for (int i = side - length; i >= 0; i--)
+                {
+                    int cut = i + length;
+                    if ((T[i] == 1) && (cut <= threshold)) T[cut] = 1;
+                }
+            }
+
+            for (int i = side; i >= 0; i--)
+            {
+                if (T[i] == 1) result.Add(i);
+            }
+
+            return result;
+
+
+        }
     }
 }
