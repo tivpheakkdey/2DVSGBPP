@@ -43,14 +43,7 @@ namespace _2DWVSBPP_with_Visualizer
                 //obtain the context model
                 Cplex model = context.GetCplex();
 
-                //if it's candidate is better that current best obj value
-                if (context.GetCandidateObjective() < obj)
-                {
-                    
-                    //TODO: Check Feasibility
-                    Console.WriteLine("callback working");
-                }
-
+                //reconstructing the model
                 for(int binType = 0; binType < inst.m; binType++)
                 {
                     for(int bin = 0; bin < inst.n; bin++)
@@ -60,6 +53,14 @@ namespace _2DWVSBPP_with_Visualizer
                         {
                             if ((int)Math.Round(context.GetCandidatePoint(x[item][bin][binType])) == 1) assignment.Add(items[item]);
                         }
+
+                        //Checking the feasibility TODO
+                        if (!FeasibilityCheck.Packing(assignment, inst.types[binType]))
+                        {
+
+                        }
+
+
                     }
                 }
                 

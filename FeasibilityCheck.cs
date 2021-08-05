@@ -12,7 +12,7 @@ namespace _2DWVSBPP_with_Visualizer
         /*Place item in height order from tallest to shortest to encourage verticle cuts
          *Priortize stacking items on top before placing on the right side.
          */
-        static public bool Packing(List<Item> assignment, Bin bin)
+        static public bool Packing(List<Item> assignment, BinType bin)
         { 
             assignment.Sort(Item.CompareItemByHeight);
             List<Item> availableItems = assignment;
@@ -21,10 +21,10 @@ namespace _2DWVSBPP_with_Visualizer
             //Check if any item is too big for the bin
             for (int i = 0; i < assignment.Count; i++)
             {
-                if (!assignment[i].CanFit(bin.type)) return false;
+                if (!assignment[i].CanFit(bin)) return false;
             }
 
-            Rectangle binSize = new Rectangle(bin.type.height, bin.type.width);
+            Rectangle binSize = new Rectangle(bin.height, bin.width);
 
             return Packing(ref availableItems, ref packedItems, binSize);
         }
@@ -85,6 +85,7 @@ namespace _2DWVSBPP_with_Visualizer
         }
         static private void rollBack(ref List<Item> a, ref List<Item> b, int times)
         {
+            if (times == 0) return;
             for(int i = 0; i < times; i++)
             {
                 a.Add(b[b.Count - 1]);
