@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using _2DWVSBPP_with_Visualizer.Problem;
+using ILOG.Concert;
+using ILOG.CPLEX;
 
 namespace _2DWVSBPP_with_Visualizer
 {
@@ -94,8 +96,66 @@ namespace _2DWVSBPP_with_Visualizer
             a.Sort(Item.CompareItemByHeight);
         }
 
+        static public bool MIPPacking(List<Item> assignment, BinType binType)
+        {
+            Bin bin = new Bin(binType);
 
-        static public List<int> NormalPattern(List<Item> items, int side, bool heightWise)
+            //List of region/s with confirmed cut/s
+            List<Region> currentRegions = new List<Region>();
+
+            //Adding whole bin as the first region to be cut
+            currentRegions.Add(new Region(bin, binType));
+
+            do
+            {
+                List<Region> bestRegions = new List<Region>();
+                double bestObj = 1000;
+                foreach (Region region in currentRegions)
+                {
+                    List<int> cutVertical = NormalPattern(assignment, (int)region.width, false);
+                    List<int> cutHorizontal = NormalPattern(assignment, (int)region.height, true);
+
+                    List<Region> packingRegions = new List<Region>();
+                    foreach (Region tempRegion in currentRegions) packingRegions.Add(tempRegion);
+                    packingRegions.Remove(region);
+
+                    foreach (int cut in cutVertical)
+                    {
+                        Region regionLeft= new Region(bin, region.height, cut, region.x, region.y);
+                        Region regionRight = new Region(bin, region.height, region.width - cut, region.x + cut, region.y);
+
+                        packingRegions.Add(regionLeft);
+                        packingRegions.Add(regionRight);
+
+
+
+                        packingRegions.Remove(regionLeft);
+                        packingRegions.Remove(regionRight);
+
+                    }
+
+                    foreach (int cut in cutHorizontal)
+                    {
+                        Region regionBot = new Region(bin, cut, region.width, region.x, region.y);
+                        Region regionTop = new Region(bin, region.height - cut, region.width, region.x, region.y + cut);
+
+                        packingRegions.Add(regionBot);
+                        packingRegions.Add(regionTop);
+
+
+
+                        packingRegions.Remove(regionBot);
+                        packingRegions.Remove(regionTop);
+                    }
+                }
+            }
+            while (false);
+
+            return true;
+        }
+
+
+        static private List<int> NormalPattern(List<Item> items, int side, bool heightWise)
         {
             List<int> result = new List<int>();
             int[] T = new int[side + 1];
@@ -128,9 +188,59 @@ namespace _2DWVSBPP_with_Visualizer
                 if (T[i] == 1) result.Add(i);
             }
 
+            result.Sort();
+
             return result;
+        }
+
+        static private double MinSum(List<Item> items, List<Region> regions)
+        {
+            try
+            {
+                //init model
+                Cplex cplex_bp = new Cplex();
+
+                //set CPlex parameters
+                cplex_bp.SetParam(Cplex.IntParam.MIPDisplay, 0);
+                cplex_bp.SetParam(Cplex.Param.TimeLimit, 2);
+                cplex_bp.SetParam(Cplex.DoubleParam.EpGap, 0.05);
+                cplex_bp.SetParam(Cplex.Param.Emphasis.MIP, 3);
+                cplex_bp.SetOut(System.IO.TextWriter.Null);
+                cplex_bp.SetWarning(System.IO.TextWriter.Null);
+
+                //reset model for use
+                cplex_bp.ClearModel();
+
+                //adding a temp var to store constraints that need to be added
+                ILinearIntExpr constraint = cplex_bp.LinearIntExpr();
+
+                //cost variable to be minimised
+                INumVar C = cplex_bp.NumVar(0, 1,"C");
+
+                //decision varsiables to assign items (i) to regions (j)
+                IIntVar[][] x = new IIntVar[items.Count][];
+
+                //init the decision var above
+                for(int i = 0; i < items.Count; i++)
+                {
+                    x[i] = new IIntVar[regions.Count];
+                    for (int j = 0; j < regions.Count; j++) x[i][j] = cplex_bp.BoolVar($"x[{i}][{j}]");
+                }
+
+                //add objective
+                ILinearNumExpr obj = cplex_bp.LinearNumExpr();
+                obj.AddTerm(1,C);
+
+                cplex_bp.AddMinimize(obj);
+
+                //
 
 
+            }
+            catch (ILOG.Concert.Exception exc)
+            {
+                System.Console.WriteLine("Concert exception " + exc + " caught");
+            }
         }
     }
 }

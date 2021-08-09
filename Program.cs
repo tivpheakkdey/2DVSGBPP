@@ -59,34 +59,34 @@ namespace _2DWVSBPP_with_Visualizer
             //AssigmentSolution model = new AssigmentSolution(instance);
             //model.Solve();
 
-            //List<Item> items = new List<Item>();
-
-            //items.Add(new Item(1, 2, 2));
-            //items.Add(new Item(2, 1, 2));
-            //items.Add(new Item(3, 3, 2));
-            //items.Add(new Item(4, 4, 2));
-
-            //Bin bin = new Bin(new BinType(10, 10));
-
-            //FeasibilityCheck.Packing(items, bin);
-
-            //Console.ReadLine();
-
             List<Item> items = new List<Item>();
-            int[] width = { 5, 10, 12, 15 };
-            for(int i = 0; i < width.Length; i++)
-            {
-                items.Add(new Item(i,0, width[i]));
-            }
 
-            List<int> result = FeasibilityCheck.NormalPattern(items, 27, false);
+            items.Add(new Item(1, 5, 2));
+            items.Add(new Item(2, 10, 4));
+            items.Add(new Item(3, 12, 6));
+            items.Add(new Item(4, 15, 8));
 
-            for(int i = 0; i < result.Count; i++)
-            {
-                Console.WriteLine(result[i]);
-            }
+            Bin bin = new Bin(new BinType(27,27));
+
+            FeasibilityCheck.MIPPacking(items, bin.type);
 
             Console.ReadLine();
+
+            //List<Item> items = new List<Item>();
+            //int[] width = { 5, 10, 12, 15 };
+            //for (int i = 0; i < width.Length; i++)
+            //{
+            //    items.Add(new Item(i, 0, width[i]));
+            //}
+
+            //List<int> result = FeasibilityCheck.NormalPattern(items, 27, false);
+
+            //for (int i = 0; i < result.Count; i++)
+            //{
+            //    Console.WriteLine(result[i]);
+            //}
+
+            //Console.ReadLine();
 
 
         }
