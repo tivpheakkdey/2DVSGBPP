@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using _2DWVSBPP_with_Visualizer.Problem;
+using _2DWVSBPP_with_Visualizer.DFF;
 using ILOG.Concert;
 using ILOG.CPLEX;
 
@@ -127,7 +128,7 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionLeft);
                         packingRegions.Add(regionRight);
 
-
+                        //TODO
 
                         packingRegions.Remove(regionLeft);
                         packingRegions.Remove(regionRight);
@@ -142,7 +143,7 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionBot);
                         packingRegions.Add(regionTop);
 
-
+                        //TODO
 
                         packingRegions.Remove(regionBot);
                         packingRegions.Remove(regionTop);
@@ -193,7 +194,7 @@ namespace _2DWVSBPP_with_Visualizer
             return result;
         }
 
-        static private double MinSum(List<Item> items, List<Region> regions)
+        static private double MinSum(List<Item> items, List<Region> regions, BinType binType)
         {
             try
             {
@@ -210,9 +211,6 @@ namespace _2DWVSBPP_with_Visualizer
 
                 //reset model for use
                 cplex_bp.ClearModel();
-
-                //adding a temp var to store constraints that need to be added
-                ILinearIntExpr constraint = cplex_bp.LinearIntExpr();
 
                 //cost variable to be minimised
                 INumVar C = cplex_bp.NumVar(0, 1,"C");
@@ -233,9 +231,55 @@ namespace _2DWVSBPP_with_Visualizer
 
                 cplex_bp.AddMinimize(obj);
 
-                //
+                /*Constraint #1: ensure that each item is assigned only once*/
+                for(int i = 0; i < items.Count; i++)
+                {
+                    ILinearIntExpr constraint = cplex_bp.LinearIntExpr();
+                    for (int j = 0; j < regions.Count; j++) constraint.AddTerm(1, x[i][j]);
+                    cplex_bp.AddEq(constraint, 1);
+                }
 
+                /*constraint #2*/
+                for(int j = 0; j < regions.Count; j++)
+                {
+                    ILinearNumExpr constraint = cplex_bp.LinearNumExpr();
 
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        double cost = items[i].area / regions[j].area;
+                        constraint.AddTerm(cost, x[i][j]);
+                    }
+                    constraint.AddTerm(-1, C);
+
+                    cplex_bp.AddLe(constraint, 0);
+                }
+
+                /*constraint #3*/
+                for (int j = 0; j < regions.Count; j++)
+                {
+                    List<DFFRow> dffRows = FeasibilityConstraint.Generate(items, regions[j], 0.01, 0.49, 0.05);
+                    for(int f = 0; f < Math.Min(dffRows.Count, 10); f++)
+                    {
+                        ILinearNumExpr constraint = cplex_bp.LinearNumExpr();
+                        for (int i = 0; i < items.Count; i++)
+                        {
+                            if (dffRows[f].row[i] == 0) continue;
+                            constraint.AddTerm(dffRows[f].row[i], x[i][j]);
+                        }
+                        constraint.AddTerm(-1, C);
+
+                        cplex_bp.AddLe(constraint, 0);
+                    }
+                }
+
+                /*constraint #4*/
+                cplex_bp.AddLe(C, 1);
+
+                if (cplex_bp.Solve())
+                {
+                    return cplex_bp.GetObjValue();
+                }
+                else return 2;
             }
             catch (ILOG.Concert.Exception exc)
             {
