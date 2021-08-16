@@ -55,7 +55,7 @@ namespace _2DWVSBPP_with_Visualizer
                         }
 
                         //Checking the feasibility TODO
-                        if (!FeasibilityCheck.Packing(assignment, inst.types[binType]))
+                        if (!FeasibilityCheck.MIPPacking(assignment, inst.types[binType]))
                         {
 
                         }

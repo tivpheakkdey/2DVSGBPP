@@ -107,10 +107,13 @@ namespace _2DWVSBPP_with_Visualizer
             //Adding whole bin as the first region to be cut
             currentRegions.Add(new Region(bin, binType));
 
+            bool feasibilityFlag = false;
+            bool exitFlag = true;
+
             do
             {
                 List<Region> bestRegions = new List<Region>();
-                double bestObj = 1000;
+                double bestObj = 2;
                 foreach (Region region in currentRegions)
                 {
                     List<int> cutVertical = NormalPattern(assignment, (int)region.width, false);
@@ -128,7 +131,15 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionLeft);
                         packingRegions.Add(regionRight);
 
-                        //TODO
+                        double MIPObj = MinSum(assignment, packingRegions, binType);
+
+                        if (MIPObj < bestObj)
+                        {
+                            bestObj = MIPObj;
+                            bestRegions.Clear();
+
+                            foreach (Region tempRegion in packingRegions) bestRegions.Add(tempRegion);
+                        }
 
                         packingRegions.Remove(regionLeft);
                         packingRegions.Remove(regionRight);
@@ -143,16 +154,36 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionBot);
                         packingRegions.Add(regionTop);
 
-                        //TODO
+                        double MIPObj = MinSum(assignment, packingRegions, binType);
+
+                        if (MIPObj < bestObj)
+                        {
+                            bestObj = MIPObj;
+                            bestRegions.Clear();
+
+                            foreach (Region tempRegion in packingRegions) bestRegions.Add(tempRegion);
+                        }
 
                         packingRegions.Remove(regionBot);
                         packingRegions.Remove(regionTop);
                     }
                 }
+                if(bestObj == 2)
+                {
+                    exitFlag = false;
+                }
+                else
+                {
+                    if (!feasibilityFlag) feasibilityFlag = true;
+                    currentRegions.Clear();
+                    foreach (Region tempRegion in bestRegions) currentRegions.Add(tempRegion);
+                }
+                //Update best current region
+                //Check for exit condition
             }
-            while (false);
+            while (exitFlag);
 
-            return true;
+            return feasibilityFlag;
         }
 
 
@@ -279,11 +310,12 @@ namespace _2DWVSBPP_with_Visualizer
                 {
                     return cplex_bp.GetObjValue();
                 }
-                else return 2;
+                else return 1;
             }
             catch (ILOG.Concert.Exception exc)
             {
                 System.Console.WriteLine("Concert exception " + exc + " caught");
+                return 1;
             }
         }
     }
