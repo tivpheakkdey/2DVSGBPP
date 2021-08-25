@@ -29,7 +29,7 @@ namespace _2DWVSBPP_with_Visualizer.Problem
 
         public override string ToString()
         {
-            return $"[{area}][{height},{width}][{used}]";
+            return $"[{area}][{height},{width}][{x},{y}][{used}]";
         }
 
         public void Use()
