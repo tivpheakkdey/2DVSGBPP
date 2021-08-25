@@ -17,11 +17,11 @@ namespace _2DWVSBPP_with_Visualizer
         private List<Item> items;
         private Instance inst;
 
-        public IncumbentCallback(double obj, IIntVar[][][] x, List<Item> items, Instance inst)
+        public IncumbentCallback(double obj, IIntVar[][][] x, Instance inst)
         {
             this.obj = obj;
             this.x = x;
-            this.items = items;
+            this.items = inst.items;
             this.inst = inst;
         }
         public void Invoke(Context context)
@@ -57,7 +57,22 @@ namespace _2DWVSBPP_with_Visualizer
                         //Checking the feasibility TODO
                         if (!FeasibilityCheck.MIPPacking(assignment, inst.types[binType]))
                         {
+                            ILinearNumExpr cut = model.LinearNumExpr();
+                            for (int i = 0; i < assignment.Count(); i++)
+                            {
+                                cut.AddTerm(1, x[assignment[i].index][bin][binType]);
+                            }
 
+                            context.RejectCandidate(model.Le(cut, assignment.Count() - 1));
+
+                            //for (int j = 0; j < inst.n; j++)
+                            //{
+                            //    ILinearNumExpr cut = model.LinearNumExpr();
+
+                            //    for (int i = 0; i < assignment.Count(); i++) cut.AddTerm(1, x[assignment[i].index][j][binType]);
+
+                            //    context.RejectCandidate(model.Le(cut, assignment.Count() - 1));
+                            //}
                         }
 
 

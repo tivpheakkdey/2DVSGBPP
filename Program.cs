@@ -49,28 +49,29 @@ namespace _2DWVSBPP_with_Visualizer
         //}
 
         static void Main(string[] args)
-        {             
-            instance = new Instance(@"D:\Deakin\Honours\Trimester 1\SIT723 Research Project A\Code\Instances\2dvsbp_data\mult1.bpp");
-            //instance = new Instance(args[0]); 
-            //Console.WriteLine(instance.ToString());
+        {
+            /*instance = new Instance(@"D:\Deakin\Honours\Trimester 1\SIT723 Research Project A\Code\Instances\2dvsbp_data\mult3.bpp");
+            //instance = new Instance(args[0]);
+            Console.WriteLine(instance.ToString());
             //time_limit = Int32.Parse(args[1]);
 
             //Create a model with the class CplexBP by passing it an instance
-            //AssigmentSolution model = new AssigmentSolution(instance);
-            //model.Solve();
+            AssigmentSolution model = new AssigmentSolution(instance);
+            model.Solve();*/
 
-            List<Item> items = new List<Item>();
+            List<Item> assignment = new List<Item>();
 
-            items.Add(new Item(1, 5, 2));
-            items.Add(new Item(2, 10, 4));
-            items.Add(new Item(3, 12, 6));
-            items.Add(new Item(4, 15, 8));
+            assignment.Add(new Item(1, 8, 3));
+            assignment.Add(new Item(2, 7, 6));
+            assignment.Add(new Item(3, 5, 1));
+            assignment.Add(new Item(4, 3, 7));
 
-            Bin bin = new Bin(new BinType(27,27));
 
-            FeasibilityCheck.MIPPacking(items, bin.type);
 
-            Console.ReadLine();
+
+            BinType bin = new BinType(10, 10);
+
+            bool result = FeasibilityCheck.MIPPacking(assignment, bin);
 
             //List<Item> items = new List<Item>();
             //int[] width = { 5, 10, 12, 15 };
@@ -79,14 +80,16 @@ namespace _2DWVSBPP_with_Visualizer
             //    items.Add(new Item(i, 0, width[i]));
             //}
 
-            //List<int> result = FeasibilityCheck.NormalPattern(items, 27, false);
+            //List<int> result = FeasibilityCheck.NormalPattern(assignment, bin, false);
 
             //for (int i = 0; i < result.Count; i++)
             //{
             //    Console.WriteLine(result[i]);
             //}
 
-            //Console.ReadLine();
+            Console.WriteLine(result);
+            Console.WriteLine("done");
+            Console.ReadLine();
 
 
         }

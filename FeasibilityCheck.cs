@@ -99,6 +99,8 @@ namespace _2DWVSBPP_with_Visualizer
 
         static public bool MIPPacking(List<Item> assignment, BinType binType)
         {
+            if (assignment.Count() == 0) return true;
+
             Bin bin = new Bin(binType);
 
             //List of region/s with confirmed cut/s
@@ -116,8 +118,8 @@ namespace _2DWVSBPP_with_Visualizer
                 double bestObj = 2;
                 foreach (Region region in currentRegions)
                 {
-                    List<int> cutVertical = NormalPattern(assignment, (int)region.width, false);
-                    List<int> cutHorizontal = NormalPattern(assignment, (int)region.height, true);
+                    List<int> cutVertical = NormalPattern(assignment, region, false);
+                    List<int> cutHorizontal = NormalPattern(assignment, region, true);
 
                     List<Region> packingRegions = new List<Region>();
                     foreach (Region tempRegion in currentRegions) packingRegions.Add(tempRegion);
@@ -160,26 +162,23 @@ namespace _2DWVSBPP_with_Visualizer
                         {
                             bestObj = MIPObj;
                             bestRegions.Clear();
-
-                            foreach (Region tempRegion in packingRegions) bestRegions.Add(tempRegion);
                         }
 
                         packingRegions.Remove(regionBot);
                         packingRegions.Remove(regionTop);
                     }
                 }
-                if(bestObj == 2)
+                if (bestObj == 2 || bestRegions.Count >= assignment.Count)
                 {
+                    foreach (Region tempRegion in bestRegions) currentRegions.Add(tempRegion);
                     exitFlag = false;
                 }
                 else
                 {
+                    foreach (Region r in bestRegions) Console.WriteLine(r.ToString());
                     if (!feasibilityFlag) feasibilityFlag = true;
                     currentRegions.Clear();
-                    foreach (Region tempRegion in bestRegions) currentRegions.Add(tempRegion);
                 }
-                //Update best current region
-                //Check for exit condition
             }
             while (exitFlag);
 
@@ -187,23 +186,26 @@ namespace _2DWVSBPP_with_Visualizer
         }
 
 
-        static private List<int> NormalPattern(List<Item> items, int side, bool heightWise)
+        static public List<int> NormalPattern(List<Item> items, Rectangle rec, bool heightWise)
         {
             List<int> result = new List<int>();
-            int[] T = new int[side + 1];
-            Array.Clear(T, 0, T.Length);
-            T[0] = 1;
+            int side;
 
             List<int> itemLength = new List<int>();
             if (heightWise)
             {
                 foreach(Item item in items) itemLength.Add((int)item.height);
+                side = (int)rec.height;
             }
             else
             {
                 foreach (Item item in items) itemLength.Add((int)item.width);
+                side = (int)rec.width;
             }
 
+            int[] T = new int[side + 1];
+            Array.Clear(T, 0, T.Length);
+            T[0] = 1;
             int threshold = side - itemLength.Min();
 
             foreach (int length in itemLength)
@@ -214,6 +216,8 @@ namespace _2DWVSBPP_with_Visualizer
                     if ((T[i] == 1) && (cut <= threshold)) T[cut] = 1;
                 }
             }
+
+            T[0] = 0;
 
             for (int i = side; i >= 0; i--)
             {
@@ -310,12 +314,12 @@ namespace _2DWVSBPP_with_Visualizer
                 {
                     return cplex_bp.GetObjValue();
                 }
-                else return 1;
+                else return 2;
             }
             catch (ILOG.Concert.Exception exc)
             {
                 System.Console.WriteLine("Concert exception " + exc + " caught");
-                return 1;
+                return 2;
             }
         }
     }
