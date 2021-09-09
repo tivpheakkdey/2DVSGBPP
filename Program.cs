@@ -71,7 +71,7 @@ namespace _2DWVSBPP_with_Visualizer
 
             BinType bin = new BinType(10, 10);
 
-            bool result = FeasibilityCheck.MIPPacking(assignment, bin);
+            bool result = FeasibilityCheck.MIPPackingQueue(assignment, bin);
 
             //List<Item> items = new List<Item>();
             //int[] width = { 5, 10, 12, 15 };
