@@ -162,6 +162,8 @@ namespace _2DWVSBPP_with_Visualizer
                         {
                             bestObj = MIPObj;
                             bestRegions.Clear();
+
+                            foreach (Region tempRegion in packingRegions) bestRegions.Add(tempRegion);
                         }
 
                         packingRegions.Remove(regionBot);
@@ -185,6 +187,105 @@ namespace _2DWVSBPP_with_Visualizer
             return feasibilityFlag;
         }
 
+
+        static public bool MIPPackingQueue(List<Item> assignment, BinType binType)
+        {
+            if (assignment.Count() == 0) return true;
+
+            bool feasibilityFlag = false;
+            Bin bin = new Bin(binType);
+
+            //Store all regions that need to be cut and checked
+            Queue<Region> availableRegions = new Queue<Region>();
+
+            //Store final regions that cannot be cut any further
+            Queue<Region> finalRegions = new Queue<Region>();
+
+            //Adding whole bin as the first region to be cut
+            availableRegions.Enqueue(new Region(bin, binType));
+
+            do
+            {
+                Region region = availableRegions.Dequeue();
+
+                double bestObj = 2;
+                List<Region> bestRegions = new List<Region>();
+
+                List<int> cutVertical = NormalPattern(assignment, region, false);
+                List<int> cutHorizontal = NormalPattern(assignment, region, true);
+
+                List<Region> packingRegions = new List<Region>(availableRegions);
+                packingRegions.AddRange(finalRegions);
+
+                foreach (int cut in cutVertical)
+                {
+                    Region regionLeft = new Region(bin, region.height, cut, region.x, region.y);
+                    Region regionRight = new Region(bin, region.height, region.width - cut, region.x + cut, region.y);
+
+                    packingRegions.Add(regionLeft);
+                    packingRegions.Add(regionRight);
+
+                    double MIPObj = MinSum(assignment, packingRegions, binType);
+
+                    if(MIPObj< bestObj)
+                    {
+                        bestObj = MIPObj;
+                        bestRegions.Clear();
+
+                        bestRegions.Add(regionLeft);
+                        bestRegions.Add(regionRight);
+
+                    }
+
+                    packingRegions.Remove(regionLeft);
+                    packingRegions.Remove(regionRight);
+                }
+
+                foreach (int cut in cutHorizontal)
+                {
+                    Region regionBot = new Region(bin, cut, region.width, region.x, region.y);
+                    Region regionTop = new Region(bin, region.height - cut, region.width, region.x, region.y + cut);
+
+                    packingRegions.Add(regionBot);
+                    packingRegions.Add(regionTop);
+
+                    double MIPObj = MinSum(assignment, packingRegions, binType);
+
+                    if (MIPObj < bestObj)
+                    {
+                        bestObj = MIPObj;
+                        bestRegions.Clear();
+
+                        bestRegions.Add(regionBot);
+                        bestRegions.Add(regionTop);
+
+                    }
+
+                    packingRegions.Remove(regionBot);
+                    packingRegions.Remove(regionTop);
+                }
+                
+                if(bestObj == 2)
+                {
+                    finalRegions.Enqueue(region);
+                }
+                else
+                {
+                    if (!feasibilityFlag) feasibilityFlag = true;
+
+                    bestRegions.Sort(Region.ComparebyArea);
+                    foreach (Region r in bestRegions) availableRegions.Enqueue(r);
+                }
+
+            }  
+            while (availableRegions.Count != 0);
+
+            List<Region> result = new List<Region>(finalRegions);
+
+            foreach (Region r in result) Console.WriteLine(r.ToString());
+
+            return feasibilityFlag;
+        }
 
         static public List<int> NormalPattern(List<Item> items, Rectangle rec, bool heightWise)
         {
@@ -309,6 +410,14 @@ namespace _2DWVSBPP_with_Visualizer
 
                 /*constraint #4*/
                 cplex_bp.AddLe(C, 1);
+
+                /*constraint #5: Ensure that each region has atleast one item packed into it*/
+                for(int j = 0; j < regions.Count; j++)
+                {
+                    ILinearIntExpr constraint = cplex_bp.LinearIntExpr();
+                    for (int i = 0; i < items.Count; i++) constraint.AddTerm(1, x[i][j]);
+                    cplex_bp.AddGe(constraint, 1);
+                }
 
                 if (cplex_bp.Solve())
                 {

@@ -37,5 +37,20 @@ namespace _2DWVSBPP_with_Visualizer.Problem
             used = true;
         }
 
+        public static int CompareRegionByArea(Region a, Region b)
+        {
+            if (a == null)
+            {
+                if (b == null) return 0;
+                else return 1;
+            }
+            else
+            {
+                int result = b.area.CompareTo(a.area);
+                if (result != 0) return result;
+                else return b.area.CompareTo(a.area);
+            }
+        }
+
     }
 }
