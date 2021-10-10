@@ -133,7 +133,7 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionLeft);
                         packingRegions.Add(regionRight);
 
-                        double MIPObj = MinSum(assignment, packingRegions, binType);
+                        double MIPObj = MinSum(assignment, packingRegions, binType, bestObj);
 
                         if (MIPObj < bestObj)
                         {
@@ -156,7 +156,7 @@ namespace _2DWVSBPP_with_Visualizer
                         packingRegions.Add(regionBot);
                         packingRegions.Add(regionTop);
 
-                        double MIPObj = MinSum(assignment, packingRegions, binType);
+                        double MIPObj = MinSum(assignment, packingRegions, binType, bestObj);
 
                         if (MIPObj < bestObj)
                         {
@@ -209,13 +209,15 @@ namespace _2DWVSBPP_with_Visualizer
                 Region region = availableRegions.Dequeue();
 
                 double bestObj = 2;
-                List<Region> bestRegions = new List<Region>();
+                double MIPObj;
+                List <Region> bestRegions = new List<Region>();
 
                 List<int> cutVertical = NormalPattern(assignment, region, false);
                 List<int> cutHorizontal = NormalPattern(assignment, region, true);
 
                 List<Region> packingRegions = new List<Region>(availableRegions);
                 packingRegions.AddRange(finalRegions);
+                //foreach(Region r in packingRegions) Console.WriteLine(r.ToString());
 
                 foreach (int cut in cutVertical)
                 {
@@ -225,7 +227,7 @@ namespace _2DWVSBPP_with_Visualizer
                     packingRegions.Add(regionLeft);
                     packingRegions.Add(regionRight);
 
-                    double MIPObj = MinSum(assignment, packingRegions, binType);
+                    MIPObj = MinSum(assignment, packingRegions, binType, bestObj);
 
                     if(MIPObj< bestObj)
                     {
@@ -249,7 +251,7 @@ namespace _2DWVSBPP_with_Visualizer
                     packingRegions.Add(regionBot);
                     packingRegions.Add(regionTop);
 
-                    double MIPObj = MinSum(assignment, packingRegions, binType);
+                    MIPObj = MinSum(assignment, packingRegions, binType, bestObj);
 
                     if (MIPObj < bestObj)
                     {
@@ -264,10 +266,13 @@ namespace _2DWVSBPP_with_Visualizer
                     packingRegions.Remove(regionBot);
                     packingRegions.Remove(regionTop);
                 }
+
+
                 
                 if(bestObj == 2)
                 {
                     finalRegions.Enqueue(region);
+                    packingRegions.Add(region);
                 }
                 else
                 {
@@ -277,6 +282,13 @@ namespace _2DWVSBPP_with_Visualizer
                     foreach (Region r in bestRegions) availableRegions.Enqueue(r);
                 }
 
+                foreach (Region r in bestRegions) packingRegions.Add(r);
+                //foreach (Region r in packingRegions) Console.WriteLine(r.ToString());
+                foreach (Region r in packingRegions) r.items.Clear();
+                MIPObj = MinSum(assignment, packingRegions, binType, 2);
+
+                foreach (Region r in packingRegions) Console.WriteLine(r.ToString());
+                Console.WriteLine("---------------");
             }  
             while (availableRegions.Count != 0);
 
@@ -330,7 +342,7 @@ namespace _2DWVSBPP_with_Visualizer
             return result;
         }
 
-        static private double MinSum(List<Item> items, List<Region> regions, BinType binType)
+        static private double MinSum(List<Item> items, List<Region> regions, BinType binType, double bestObj)
         {
             try
             {
@@ -421,6 +433,17 @@ namespace _2DWVSBPP_with_Visualizer
 
                 if (cplex_bp.Solve())
                 {
+                    if (cplex_bp.GetObjValue() < bestObj)
+                    {
+                        for (int i = 0; i < items.Count; i++)
+                        {
+                            for (int j = 0; j < regions.Count; j++)
+                            {
+                                if ((int)Math.Round(cplex_bp.GetValue(x[i][j])) != 1) continue;
+                                regions[j].AddItem(items[i],0,0);
+                            }    
+                        }
+                    }
                     return cplex_bp.GetObjValue();
                 }
                 else return 2;
