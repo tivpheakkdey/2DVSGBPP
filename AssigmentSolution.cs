@@ -125,10 +125,10 @@ namespace _2DWVSBPP_with_Visualizer
 
 
                 //Solving MIP
-                IncumbentCallback cb = new IncumbentCallback(double.MaxValue, x, inst);
-                long wherefrom = 0;
-                wherefrom |= Context.Id.Candidate;
-                cplex_bp.Use(cb, wherefrom);
+                //IncumbentCallback cb = new IncumbentCallback(double.MaxValue, x, inst);
+                //long wherefrom = 0;
+                //wherefrom |= Context.Id.Candidate;
+                //cplex_bp.Use(cb, wherefrom);
 
 
                 if (cplex_bp.Solve())

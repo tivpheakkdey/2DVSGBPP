@@ -13,6 +13,8 @@ namespace _2DWVSBPP_with_Visualizer.Problem
         public double area { get; private set; }
         public bool used { get; set; } = false;
         public Bin bin { get; private set; }
+        public List<Item> items { get; private set; } = new List<Item>();
+        public List<Tuple<double, double>> xy { get; private set; } = new List<Tuple<double, double>>();
 
         public Region(Bin bin, double height, double width, double x, double y) : base (height, width)
         {
@@ -27,9 +29,19 @@ namespace _2DWVSBPP_with_Visualizer.Problem
 
         }
 
+        public void AddItem(Item item, double x, double y)
+        {
+            items.Add(item);
+            xy.Add(new Tuple<double, double>(x, y));
+        }
+
         public override string ToString()
         {
-            return $"[{area}][{height},{width}][{x},{y}][{used}]";
+            double sum = items.Sum(x => x.area);
+            string s = $"[{area}][{height},{width}][{x},{y}][{used}]";
+            s = s + "\n" + items.Count + " : " + (sum / area).ToString("F") + $" [{area}]:";
+            for (int k = 0; k < items.Count; k++) s = s + "\n" + items[k].ToString() + " " + xy[k].Item1 + " " + xy[k].Item2;
+            return s + "\n";
         }
 
         public void Use()
